@@ -47,7 +47,7 @@ def draw_points():
     ax.plot(pts[:,0], pts[:,1], 'ro', zorder=5)
     for i,p in enumerate(pts): ax.text(p[0], p[1]+0.12, str(i+1), ha='center', fontsize=9)
 
-#Fungsi untuk menggambar poligon
+#Fungsi untuk mengkonversi digram voronoi ke poligon dan menggambar poligon
 def voronoi_to_poligon(voronoi):
     polys = []
     for region_idx in voronoi.point_region:
@@ -62,7 +62,7 @@ def voronoi_to_poligon(voronoi):
             continue
     return polys
 
-#Fungsi untuk merender tampilan canvas
+#Fungsi untuk merender tampilan canvas berdasarkan tombol yang diclick
 def render_view(view):
     clear_canvas()
     draw_points()
@@ -71,19 +71,19 @@ def render_view(view):
         desc_text.set_text("Butuh minimal 3 titik valid untuk Voronoi/Delaunay.")
         plt.draw(); return
     ax.set_title(view)
-    if view == "Voronoi Diagram (Thiessen Poligons)":
+    if view == "Voronoi Diagram (Thiessen Polygons)":
         x0, x1 = ax.get_xlim()
         y0, y1 = ax.get_ylim()
         voronoi_plot_2d(voronoi, ax=ax, show_vertices=False, line_colors='blue', line_width=1.5, point_size=0)
         ax.set_xlim(x0, x1)
         ax.set_ylim(y0, y1)
         
-    elif view == "Thiessen Poligons":
+    elif view == "Thiessen Polygon":
         polys = voronoi_to_poligon(voronoi)
         for poly in polys:
             x, y = poly.exterior.xy
             ax.plot(x, y, color='blue', linewidth=1.5, zorder=3)
-    elif view == "Monoton Poligons":
+    elif view == "Monoton Polygon":
         polys = voronoi_to_poligon(voronoi)
         for poly in polys:
             tris = triangulate(poly)
@@ -105,15 +105,15 @@ def onclick_add(event):
 #Deklarasi fungsi untuk masing-masing tombol
 def btn_voronoi(event):
     global current_view
-    current_view = "Voronoi Diagram (Thiessen Poligons)"; render_view(current_view)
+    current_view = "Voronoi Diagram (Thiessen Polygons)"; render_view(current_view)
 
 def btn_thiessen(event):
     global current_view
-    current_view = "Thiessen Poligons"; render_view(current_view)
+    current_view = "Thiessen Polygon"; render_view(current_view)
 
-def btn_monotone(event):
+def btn_monoton(event):
     global current_view
-    current_view = "Monoton Poligons"; render_view(current_view)
+    current_view = "Monoton Polygon"; render_view(current_view)
 
 def btn_reset(event):
     points.clear()
@@ -121,7 +121,7 @@ def btn_reset(event):
     plt.draw()
     desc_text.set_text(f"{len(points)} titik (Reset).")
 
-#Atur posisi tombol
+#Atur posisi tombol berdasarkan layout window
 CENTER_X = 0.5; BTN_W = 0.20; BTN_H = 0.07; GAP = 0.02
 total_w = 4*BTN_W + 3*GAP
 start_x = CENTER_X - total_w/2
@@ -134,14 +134,14 @@ ax_b4 = plt.axes([start_x + 3*(BTN_W+GAP), 0.05, BTN_W, BTN_H])
 #Deklarasi tombol dan hubungkan dengan posisi ax yg ditentukan sebelumnya
 button_reset = Button(ax_b1, 'Reset')
 button_voronoi = Button(ax_b2, 'Voronoi Diagram')
-button_thiessen = Button(ax_b3, 'Thiessen Poligons')
-button_monotone = Button(ax_b4, 'Monotone Poligons')
+button_thiessen = Button(ax_b3, 'Thiessen Polygon')
+button_monoton = Button(ax_b4, 'Monoton Polygon')
 
 #Hubungkan tombol dengan fungsinya
 button_reset.on_clicked(btn_reset)
 button_voronoi.on_clicked(btn_voronoi)
 button_thiessen.on_clicked(btn_thiessen)
-button_monotone.on_clicked(btn_monotone)
+button_monoton.on_clicked(btn_monoton)
 
 fig.canvas.mpl_connect('button_press_event', onclick_add)
 setup_canvas(); draw_points()
